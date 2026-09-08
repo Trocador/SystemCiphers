@@ -5,6 +5,11 @@ from cifrados.adicion import cifrado_adicion, descifrado_adicion
 from cifrados.fracmason import cifrado_fracmason, descifrado_fracmason
 from cifrados.polybius import cifrado_polybius, descifrado_polybius
 from cifrados.railfence import cifrado_railfence, descifrado_railfence
+from cifrados.transposicion import (
+    cifrar_grupos, descifrar_grupos,
+    cifrar_serial, descifrar_serial,
+    cifrar_columnas, descifrar_columnas
+)
 
 
 class CipherWindow(ttk.Toplevel):
@@ -281,7 +286,51 @@ class CipherWindow(ttk.Toplevel):
             self.lbl_rail_pattern.pack(anchor="w", pady=(2, 0))
 
             self._actualizar_info_railfence()
-    
+
+        # CASO: TRANSPOSICIÓN
+        elif self.clave_cifrado == "transposicion":
+            frame_subtipo = ttk.Frame(self.frame_config)
+            frame_subtipo.pack(fill=X, pady=(0, 10))
+
+            ttk.Label(frame_subtipo, text="Método de Transposición:", font=("Helvetica", 10, "bold")).pack(anchor="w")
+
+            self.combo_subtipo = ttk.Combobox(
+                frame_subtipo,
+                values=["Por Grupos", "Serial", "Por Columnas (Vertical)"],
+                state="readonly"
+            )
+            self.combo_subtipo.set("Por Grupos")
+            self.combo_subtipo.pack(fill=X, pady=(5, 10))
+            self.combo_subtipo.bind("<<ComboboxSelected>>", lambda e: self._cambiar_inputs_transposicion())
+
+            # Contenedor dinámico de campos de entrada
+            self.frame_inputs_transp = ttk.Frame(self.frame_config)
+            self.frame_inputs_transp.pack(fill=X)
+
+            self._cambiar_inputs_transposicion()
+
+    def _cambiar_inputs_transposicion(self):
+        """Alterna los inputs requeridos según el subtipo de transposición."""
+        for widget in self.frame_inputs_transp.winfo_children():
+            widget.destroy()
+
+        subtipo = self.combo_subtipo.get()
+
+        if subtipo == "Por Grupos":
+            ttk.Label(self.frame_inputs_transp, text="Clave de permutación (ej: 5,2,4,1,3):").pack(anchor="w")
+            self.ent_clave_transp = ttk.Entry(self.frame_inputs_transp)
+            self.ent_clave_transp.insert(0, "5,2,4,1,3")
+            self.ent_clave_transp.pack(fill=X, pady=(2, 0))
+
+        elif subtipo == "Serial":
+            ttk.Label(self.frame_inputs_transp, text="Modo Serial: No requiere clave explícita.", bootstyle="secondary").pack(anchor="w")
+
+        elif subtipo == "Por Columnas (Vertical)":
+            ttk.Label(self.frame_inputs_transp, text="Palabra Clave (ej: VINO):").pack(anchor="w")
+            self.ent_clave_transp = ttk.Entry(self.frame_inputs_transp)
+            self.ent_clave_transp.insert(0, "VINO")
+            self.ent_clave_transp.pack(fill=X, pady=(2, 0))
+
     def _actualizar_info_railfence(self):
         """Muestra una previsualización conceptual del patrón en zigzag según el número de rieles."""
         try:
@@ -349,6 +398,24 @@ class CipherWindow(ttk.Toplevel):
             resultado = cifrado_railfence(texto, rieles)
         else:
             resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
+        if self.clave_cifrado == "transposicion":
+            subtipo = self.combo_subtipo.get()
+            if subtipo == "Por Grupos":
+                try:
+                    clave = [int(x.strip()) for x in self.ent_clave_transp.get().split(",")]
+                    resultado = cifrar_grupos(texto, clave)
+                except Exception as e:
+                    resultado = f"[ERROR EN CLAVE DE GRUPOS]: {e}"
+            elif subtipo == "Serial":
+                resultado = cifrar_serial(texto)
+            elif subtipo == "Por Columnas (Vertical)":
+                clave = self.ent_clave_transp.get().strip()
+                if clave:
+                    resultado = cifrar_columnas(texto, clave)
+                else:
+                    resultado = "[ERROR]: Ingrese una palabra clave válida."
+        else:#...
+            pass
 
         self._actualizar_salida(resultado)
 
@@ -376,6 +443,25 @@ class CipherWindow(ttk.Toplevel):
             resultado = descifrado_railfence(texto, rieles)
         else:
             resultado = f"[DESCIFRANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
+        if self.clave_cifrado == "transposicion":
+            subtipo = self.combo_subtipo.get()
+            if subtipo == "Por Grupos":
+                try:
+                    clave = [int(x.strip()) for x in self.ent_clave_transp.get().split(",")]
+                    resultado = descifrar_grupos(texto, clave)
+                except Exception as e:
+                    resultado = f"[ERROR EN CLAVE DE GRUPOS]: {e}"
+            elif subtipo == "Serial":
+                resultado = descifrar_serial(texto)
+            elif subtipo == "Por Columnas (Vertical)":
+                clave = self.ent_clave_transp.get().strip()
+                if clave:
+                    resultado = descifrar_columnas(texto, clave)
+                else:
+                    resultado = "[ERROR]: Ingrese una palabra clave válida."
+        else:
+            # ...
+            pass
 
         self._actualizar_salida(resultado)
 

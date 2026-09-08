@@ -21,8 +21,7 @@ class MainWindow(ttk.Window):
             ("Método Fracmasón", "Cifrado gráfico por sustitución de símbolos.", "fracmason"),
             ("Cifrado Polybius", "Sustitución por coordenadas mediante matriz 5x5.", "polybius"),
             ("Cifrado RailFence", "Transposición en zigzag a través de raíles.", "railfence"),
-            ("Transposición", "Reordenamiento posicional del texto original.", "transposicion"),
-            ("César con Clave", "Alfabeto reordenado a partir de una clave.", "cesar_clave"),
+            ("Transposición", "Reordenamiento posicional (Grupos, Serial y Columnas).", "transposicion"),
         ]
 
         self._crear_navbar()
