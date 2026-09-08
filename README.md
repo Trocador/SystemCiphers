@@ -1,9 +1,8 @@
-Markdown
 # 🔒 Sistema de Cifrados Criptográficos
 
 Un sistema interactivo de cifrado y descifrado desarrollado en **Python** con una interfaz gráfica moderna utilizando **Tkinter** y **ttkbootstrap**. Este software está diseñado con fines educativos y prácticos, permitiendo visualizar la lógica y los procesos detrás de diversos métodos criptográficos clásicos y contemporáneos.
 
----
+
 
 ## 🌟 Características Principales
 
@@ -11,7 +10,7 @@ Un sistema interactivo de cifrado y descifrado desarrollado en **Python** con un
 * **Guías y Esquemas Didácticos:** Muestra la alineación de texto, matrices, trazos e iteraciones paso a paso en algoritmos complejos.
 * **Soporte Multi-algoritmo:** Permite cifrar y descifrar textos mediante múltiples técnicas.
 
----
+
 
 ## 🔐 Algoritmos Implementados
 
@@ -27,13 +26,13 @@ Un sistema interactivo de cifrado y descifrado desarrollado en **Python** con un
    * Por Columnas / Vertical (palabra clave)
 8. **Cifrado Vigenère:** Cifrado polialfabético interactivo con alineación de texto y tabla de cruces.
 
----
+
 
 ## 🚀 Uso del Ejecutable (`.exe`)
 
 No necesitas instalar Python para ejecutar la aplicación compilada en Windows.
 
-### 📍 Ubicación del Ejecutable
+## 📍 Ubicación del Ejecutable
 El ejecutable compilado listo para usar se encuentra en la siguiente ruta dentro del proyecto:
 
 ```text
@@ -41,46 +40,57 @@ SistemaCifrados/
 └── dist/
     └── main.exe   <-- ¡Ejecuta este archivo!
 Nota: Simplemente haz doble clic sobre dist/main.exe para iniciar la aplicación.
+```
 
-🛠️ Requisitos e Instalación (Entorno de Desarrollo)
+# 🛠️ Requisitos e Instalación (Entorno de Desarrollo)
 Si deseas ejecutar o modificar el código fuente, asegúrate de cumplir con los siguientes requisitos:
 
-Prerrequisitos
+## Prerrequisitos
 Python 3.10+ instalado en el sistema.
 
-Pasos para ejecutar desde la consola:
+## Pasos para ejecutar desde la consola:
 Clonar o descargar el repositorio:
 
-Bash
+```Bash
 git clone [https://github.com/tu-usuario/SistemaCifrados.git](https://github.com/tu-usuario/SistemaCifrados.git)
 cd SistemaCifrados
-Crear y activar un entorno virtual:
+```
 
-Bash
+## Crear y activar un entorno virtual:
+
+```Bash
 # En Windows
 python -m venv venv
 .\venv\Scripts\activate
-Instalar dependencias:
+```
 
-Bash
+## Instalar dependencias:
+
+```Bash
 pip install ttkbootstrap pyinstaller
-Ejecutar la aplicación:
+```
 
-Bash
+## Ejecutar la aplicación:
+
+```Bash
 python main.py
-📦 Compilación y Generación del Ejecutable (.exe)
+```
+
+# 📦 Compilación y Generación del Ejecutable (.exe)
 Si realizaste cambios en el código fuente y deseas volver a empaquetar el ejecutable en un archivo único (.exe) dentro de dist/:
 
 Borra las carpetas build/, dist/ y el archivo main.spec previos (si existen).
 
 Ejecuta el comando de PyInstaller asegurándote de incluir los assets del proyecto y de ttkbootstrap:
 
-DOS
+```DOS
 pyinstaller --noconsole --onefile --add-data "assets;assets" --add-data "venv\Lib\site-packages\ttkbootstrap;ttkbootstrap" main.py
+```
+
 El nuevo ejecutable reemplazará al anterior dentro de la carpeta dist/.
 
-📁 Estructura del Proyecto
-Plaintext
+## 📁 Estructura del Proyecto
+```Plaintext
 SistemaCifrados/
 │
 ├── assets/                  # Recursos gráficos (mapas visuales, imágenes, etc.)
@@ -106,5 +116,7 @@ SistemaCifrados/
 ├── config.py                # Configuraciones globales y constantes del sistema
 ├── main.py                  # Punto de entrada de la aplicación
 └── README.md                # Documentación del proyecto
-🛡️ Licencia
+```
+
+## 🛡️ Licencia
 Este proyecto se distribuye bajo la licencia MIT. Siéntete libre de usarlo, modificarlo y compartirlo con fines académicos o personales.
