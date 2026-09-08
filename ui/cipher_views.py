@@ -1,4 +1,6 @@
 import ttkbootstrap as ttk
+import os
+import sys
 from tkinter import PhotoImage
 from ttkbootstrap.constants import BOTH, END, LEFT, X
 from cifrados.cesar import cifrado_cesar, descifrado_cesar
@@ -87,6 +89,15 @@ class CipherWindow(ttk.Toplevel):
             background="#f8f9fa",
         )
         self.txt_salida.pack(fill=X)
+    
+    def obtener_ruta_recurso(self, ruta_relativa: str) -> str:
+        """Busca el archivo en la carpeta temporal de PyInstaller o en el directorio local."""
+        if hasattr(sys, "_MEIPASS"):
+            # Se está ejecutando como un .exe de PyInstaller
+            return os.path.join(getattr(sys, "_MEIPASS"), ruta_relativa)
+
+        # Se está ejecutando normalmente desde Python
+        return os.path.join(os.path.abspath("."), ruta_relativa)
 
     def _configurar_panel_parametros(self):
         """Muestra componentes según el tipo de cifrado seleccionado."""
@@ -198,7 +209,8 @@ class CipherWindow(ttk.Toplevel):
 
             try:
                 # Cargar la imagen utilizando PhotoImage
-                self.img_fracmason = PhotoImage(file="assets/fracmason_mapa.png")
+                ruta_correcta = self.obtener_ruta_recurso("assets/fracmason_mapa.png")
+                self.img_fracmason = PhotoImage(file=ruta_correcta)
                 
                 # Opcional: Redimensionar si la imagen es muy grande (ejemplo: subsample)
                 self.img_fracmason = self.img_fracmason.subsample(4, 4)
