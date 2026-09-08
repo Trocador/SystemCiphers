@@ -306,14 +306,27 @@ class CipherWindow(ttk.Toplevel):
             self.combo_subtipo.pack(fill=X, pady=(5, 10))
             self.combo_subtipo.bind("<<ComboboxSelected>>", lambda e: self._cambiar_inputs_transposicion())
 
-            # Contenedor dinámico de campos de entrada
+            # Contenedor dinámico de inputs
             self.frame_inputs_transp = ttk.Frame(self.frame_config)
             self.frame_inputs_transp.pack(fill=X)
+
+            # VISOR VISUAL EDUCATIVO
+            ttk.Label(self.frame_config, text="Esquema / Desglose de Transposición:", font=("Helvetica", 9, "bold")).pack(anchor="w", pady=(10, 2))
+            
+            self.txt_esquema_transp = ttk.Text(
+                self.frame_config, 
+                height=6, 
+                font=("Consolas", 9), 
+                state="disabled", 
+                background="#1e1e1e", 
+                foreground="#00ffcc"
+            )
+            self.txt_esquema_transp.pack(fill=X)
 
             self._cambiar_inputs_transposicion()
 
     def _cambiar_inputs_transposicion(self):
-        """Alterna los inputs requeridos según el subtipo de transposición."""
+        """Alterna los inputs según la variante seleccionada."""
         for widget in self.frame_inputs_transp.winfo_children():
             widget.destroy()
 
@@ -326,7 +339,7 @@ class CipherWindow(ttk.Toplevel):
             self.ent_clave_transp.pack(fill=X, pady=(2, 0))
 
         elif subtipo == "Serial":
-            ttk.Label(self.frame_inputs_transp, text="Modo Serial: No requiere clave explícita.", bootstyle="secondary").pack(anchor="w")
+            ttk.Label(self.frame_inputs_transp, text="Modo Serial: Separa caracteres en índices pares e impares.", bootstyle="secondary").pack(anchor="w")
 
         elif subtipo == "Por Columnas (Vertical)":
             ttk.Label(self.frame_inputs_transp, text="Palabra Clave (ej: VINO):").pack(anchor="w")
@@ -409,22 +422,31 @@ class CipherWindow(ttk.Toplevel):
         
         if self.clave_cifrado == "transposicion":
             subtipo = self.combo_subtipo.get()
+            esquema = ""
+            
             if subtipo == "Por Grupos":
                 try:
                     clave = [int(x.strip()) for x in self.ent_clave_transp.get().split(",")]
-                    resultado = cifrar_grupos(texto, clave)
+                    resultado, esquema = cifrar_grupos(texto, clave)
                 except Exception as e:
                     resultado = f"[ERROR EN CLAVE DE GRUPOS]: {e}"
+                    
             elif subtipo == "Serial":
-                resultado = cifrar_serial(texto)
+                resultado, esquema = cifrar_serial(texto)
+                
             elif subtipo == "Por Columnas (Vertical)":
                 clave = self.ent_clave_transp.get().strip()
                 if clave:
-                    resultado = cifrar_columnas(texto, clave)
+                    resultado, esquema = cifrar_columnas(texto, clave)
                 else:
                     resultado = "[ERROR]: Ingrese una palabra clave válida."
-        else:#...
-            pass
+
+            # Actualizar visor visual con la guía interactiva
+            if esquema:
+                self.txt_esquema_transp.config(state="normal")
+                self.txt_esquema_transp.delete("1.0", END)
+                self.txt_esquema_transp.insert("1.0", esquema)
+                self.txt_esquema_transp.config(state="disabled")
 
         self._actualizar_salida(resultado)
 
