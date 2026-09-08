@@ -4,6 +4,7 @@ from cifrados.cesar import cifrado_cesar, descifrado_cesar
 from cifrados.adicion import cifrado_adicion, descifrado_adicion
 from cifrados.fracmason import cifrado_fracmason, descifrado_fracmason
 from cifrados.polybius import cifrado_polybius, descifrado_polybius
+from cifrados.railfence import cifrado_railfence, descifrado_railfence
 
 
 class CipherWindow(ttk.Toplevel):
@@ -243,6 +244,55 @@ class CipherWindow(ttk.Toplevel):
                 for c, char in enumerate(fila, start=1):
                     ttk.Label(frame_grid, text=char, font=("Consolas", 8), bootstyle="secondary").grid(row=r, column=c, padx=4)
 
+        # CASO: CIFRADO RAILFENCE
+        elif self.clave_cifrado == "railfence":
+            frame_rail = ttk.Frame(self.frame_config)
+            frame_rail.pack(anchor="w", fill=X)
+
+            lbl_rails = ttk.Label(
+                frame_rail, text="Número de Rieles / Filas:", font=("Helvetica", 10)
+            )
+            lbl_rails.pack(side=LEFT, padx=(0, 10))
+
+            self.spin_rails = ttk.Spinbox(
+                frame_rail,
+                from_=2,
+                to=10,
+                width=6,
+                command=self._actualizar_info_railfence,
+            )
+            self.spin_rails.set(3)
+            self.spin_rails.pack(side=LEFT)
+            self.spin_rails.bind("<KeyRelease>", lambda e: self._actualizar_info_railfence())
+
+            # VISOR VISUAL DE PATRÓN ZIGZAG
+            frame_preview = ttk.Frame(self.frame_config, padding=(0, 10))
+            frame_preview.pack(fill=X)
+
+            ttk.Label(
+                frame_preview,
+                text="Esquema del recorrido:",
+                font=("Helvetica", 9, "bold"),
+            ).pack(anchor="w")
+
+            self.lbl_rail_pattern = ttk.Label(
+                frame_preview, text="", font=("Consolas", 9, "bold"), bootstyle="info"
+            )
+            self.lbl_rail_pattern.pack(anchor="w", pady=(2, 0))
+
+            self._actualizar_info_railfence()
+    
+    def _actualizar_info_railfence(self):
+        """Muestra una previsualización conceptual del patrón en zigzag según el número de rieles."""
+        try:
+            r = int(self.spin_rails.get())
+        except ValueError:
+            r = 3
+
+        self.lbl_rail_pattern.config(
+            text=f"Patrón activo: Transposición distribuida alternando sobre {r} niveles verticales."
+        )
+
     def _actualizar_formula_adicion(self):
         """Muestra de forma dinámica la ecuación matemática $C = (P + K) \\pmod{26}."""
         try:
@@ -291,6 +341,12 @@ class CipherWindow(ttk.Toplevel):
             resultado = cifrado_fracmason(texto)
         elif self.clave_cifrado == "polybius":
             resultado = cifrado_polybius(texto)
+        elif self.clave_cifrado == "railfence":
+            try:
+                rieles = int(self.spin_rails.get())
+            except ValueError:
+                rieles = 3
+            resultado = cifrado_railfence(texto, rieles)
         else:
             resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
@@ -312,6 +368,12 @@ class CipherWindow(ttk.Toplevel):
             resultado = descifrado_fracmason(texto)
         elif self.clave_cifrado == "polybius":
             resultado = descifrado_polybius(texto)
+        elif self.clave_cifrado == "railfence":
+            try:
+                rieles = int(self.spin_rails.get())
+            except ValueError:
+                rieles = 3
+            resultado = descifrado_railfence(texto, rieles)
         else:
             resultado = f"[DESCIFRANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
