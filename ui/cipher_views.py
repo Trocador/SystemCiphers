@@ -282,6 +282,11 @@ class CipherWindow(ttk.Toplevel):
                 frame_preview, text="", font=("Consolas", 9, "bold"), bootstyle="info"
             )
             self.lbl_rail_pattern.pack(anchor="w", pady=(2, 0))
+            
+            ttk.Label(self.frame_config, text="Esquema visual en Rieles:", font=("Helvetica", 9, "bold")).pack(anchor="w", pady=(10, 2))
+    
+            self.txt_esquema_rail = ttk.Text(self.frame_config, height=5, font=("Consolas", 10), state="disabled", background="#1e1e1e", foreground="#00ffcc")
+            self.txt_esquema_rail.pack(fill=X)
 
             self._actualizar_info_railfence()
 
@@ -393,9 +398,15 @@ class CipherWindow(ttk.Toplevel):
                 rieles = int(self.spin_rails.get())
             except ValueError:
                 rieles = 3
-            resultado = cifrado_railfence(texto, rieles)
-        else:
-            resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
+                
+            resultado, esquema = cifrado_railfence(texto, rieles)
+            
+            # Mostrar el esquema gráfico en pantalla
+            self.txt_esquema_rail.config(state="normal")
+            self.txt_esquema_rail.delete("1.0", END)
+            self.txt_esquema_rail.insert("1.0", esquema)
+            self.txt_esquema_rail.config(state="disabled")
+        
         if self.clave_cifrado == "transposicion":
             subtipo = self.combo_subtipo.get()
             if subtipo == "Por Grupos":
