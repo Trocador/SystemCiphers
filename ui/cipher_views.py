@@ -2,6 +2,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import BOTH, END, LEFT, X
 from cifrados.cesar import cifrado_cesar, descifrado_cesar
 from cifrados.adicion import cifrado_adicion, descifrado_adicion
+from cifrados.fracmason import cifrado_fracmason, descifrado_fracmason
 
 
 class CipherWindow(ttk.Toplevel):
@@ -176,6 +177,37 @@ class CipherWindow(ttk.Toplevel):
 
             self._actualizar_formula_adicion()
         
+        # CASO: CIFRADO FRACMASÓN
+        elif self.clave_cifrado == "fracmason":
+
+            frame_info = ttk.Frame(self.frame_config, padding=5)
+            frame_info.pack(fill=X)
+
+            lbl_desc = ttk.Label(
+                frame_info,
+                text="Representación por rejas (3x3) y cruces (X) con y sin puntos.",
+                font=("Helvetica", 9),
+                bootstyle="secondary"
+            )
+            lbl_desc.pack(anchor="w")
+
+            # VISOR VISUAL: Muestra de la matriz geométrica
+            frame_preview = ttk.Frame(self.frame_config, padding=(0, 10))
+            frame_preview.pack(fill=X)
+
+            ttk.Label(
+                frame_preview,
+                text="Estructura gráfica:",
+                font=("Helvetica", 9, "bold"),
+            ).pack(anchor="w")
+
+            lbl_grid = ttk.Label(
+                frame_preview,
+                text="Reja 1: A-I  |  Reja 2 (+Punto): J-R  |  Cruz 1: S-V  |  Cruz 2 (+Punto): W-Z",
+                font=("Consolas", 9, "bold"),
+                bootstyle="info"
+            )
+            lbl_grid.pack(anchor="w", pady=(2, 0))
     def _actualizar_formula_adicion(self):
         """Muestra de forma dinámica la ecuación matemática $C = (P + K) \\pmod{26}."""
         try:
@@ -220,6 +252,8 @@ class CipherWindow(ttk.Toplevel):
             except ValueError:
                 k = 0
             resultado = cifrado_adicion(texto, k)
+        elif self.clave_cifrado == "fracmason":
+            resultado = cifrado_fracmason(texto)
         else:
             resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
@@ -237,6 +271,8 @@ class CipherWindow(ttk.Toplevel):
             except ValueError:
                 k = 0
             resultado = descifrado_adicion(texto, k)
+        elif self.clave_cifrado == "fracmason":
+            resultado = descifrado_fracmason(texto)
         else:
             resultado = f"[DESCIFRANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 

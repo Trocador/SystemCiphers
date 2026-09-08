@@ -15,11 +15,10 @@ class MainWindow(ttk.Window):
         
         # Lista de los 8 métodos con sus descripciones
         self.cifrados = [
-            ("Método Fracmasón", "Cifrado gráfico por sustitución de símbolos.", "fracmason"),
             ("César Normal", "Desplazamiento clásico de posiciones en el alfabeto.", "cesar_normal"),
             ("César por Posición", "Desplazamiento ejecutable con valor 'n' personalizable.", "cesar_posicion"),
             ("Cifrado Adición", "Desplazamiento numérico con aritmética modular.", "adicion"),
-            ("Cifrado Vigenère", "Cifrado polialfabético basado en una palabra clave.", "vigenere"),
+            ("Método Fracmasón", "Cifrado gráfico por sustitución de símbolos.", "fracmason"),
             ("Transposición", "Reordenamiento posicional del texto original.", "transposicion"),
             ("Cifrado Polybius", "Sustitución por coordenadas mediante matriz 5x5.", "polybius"),
             ("Cifrado RailFence", "Transposición en zigzag a través de raíles.", "railfence"),
