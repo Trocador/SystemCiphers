@@ -13,6 +13,7 @@ from cifrados.transposicion import (
     cifrar_serial, descifrar_serial,
     cifrar_columnas, descifrar_columnas
 )
+from cifrados.vigenere import cifrado_vigenere, descifrado_vigenere
 
 
 class CipherWindow(ttk.Toplevel):
@@ -337,6 +338,43 @@ class CipherWindow(ttk.Toplevel):
 
             self._cambiar_inputs_transposicion()
 
+        # CASO: CIFRADO VIGENÈRE
+        elif self.clave_cifrado == "vigenere":
+            frame_vig = ttk.Frame(self.frame_config)
+            frame_vig.pack(fill=X)
+
+            ttk.Label(
+                frame_vig, text="Palabra Clave (solo letras):", font=("Helvetica", 10, "bold")
+            ).pack(anchor="w")
+
+            self.ent_vigenere_key = ttk.Entry(frame_vig)
+            self.ent_vigenere_key.insert(0, "CLAVE")
+            self.ent_vigenere_key.pack(fill=X, pady=(2, 10))
+
+            # Guía Didáctica
+            ttk.Label(
+                self.frame_config,
+                text="Mapeo Polialfabético: Cada letra desplaza al texto según el índice alfabético de la palabra clave.",
+                font=("Helvetica", 8, "italic"),
+                bootstyle="secondary"
+            ).pack(anchor="w")
+
+            ttk.Label(
+                self.frame_config,
+                text="Esquema del cifrado/descifrado Vigenère:",
+                font=("Helvetica", 9, "bold"),
+            ).pack(anchor="w", pady=(10, 2))
+
+            self.txt_esquema_vig = ttk.Text(
+                self.frame_config,
+                height=9,
+                font=("Consolas", 10),
+                state="disabled",
+                background="#1e1e1e",
+                foreground="#00ffcc",
+            )
+            self.txt_esquema_vig.pack(fill=X)
+
     def _cambiar_inputs_transposicion(self):
         """Alterna los inputs según la variante seleccionada."""
         for widget in self.frame_inputs_transp.winfo_children():
@@ -404,48 +442,72 @@ class CipherWindow(ttk.Toplevel):
 
     def _ejecutar_cifrado(self):
         texto = self.txt_entrada.get("1.0", "end-1c")
+        resultado = ""  # Inicialización para evitar UnboundLocalError
 
+        # 1. CÉSAR
         if self.clave_cifrado in ["cesar", "cesar_normal", "cesar_posicion"]:
             n = self._obtener_desplazamiento()
             resultado = cifrado_cesar(texto, n)
+
+        # 2. ADICIÓN
         elif self.clave_cifrado == "adicion":
             try:
                 k = int(self.spin_key.get())
             except ValueError:
                 k = 0
             resultado = cifrado_adicion(texto, k)
+
+        # 3. FRACMASÓN
         elif self.clave_cifrado == "fracmason":
             resultado = cifrado_fracmason(texto)
+
+        # 4. POLYBIUS
         elif self.clave_cifrado == "polybius":
             resultado = cifrado_polybius(texto)
+
+        # 5. RAIL FENCE
         elif self.clave_cifrado == "railfence":
             try:
                 rieles = int(self.spin_rails.get())
             except ValueError:
                 rieles = 3
-                
-            resultado, esquema = cifrado_railfence(texto, rieles)
+            res_cif, esquema = cifrado_railfence(texto, rieles)
+            resultado = res_cif
             
-            # Mostrar el esquema gráfico en pantalla
-            self.txt_esquema_rail.config(state="normal")
-            self.txt_esquema_rail.delete("1.0", END)
-            self.txt_esquema_rail.insert("1.0", esquema)
-            self.txt_esquema_rail.config(state="disabled")
-        
-        if self.clave_cifrado == "transposicion":
+            # Actualizar visor visual si está disponible
+            if hasattr(self, 'txt_esquema_rail'):
+                self.txt_esquema_rail.config(state="normal")
+                self.txt_esquema_rail.delete("1.0", END)
+                self.txt_esquema_rail.insert("1.0", esquema)
+                self.txt_esquema_rail.config(state="disabled")
+
+        # 6. VIGENÈRE
+        elif self.clave_cifrado == "vigenere":
+            clave = self.ent_vigenere_key.get().strip()
+            if not clave or not clave.isalpha():
+                resultado = "[ERROR]: Ingrese una palabra clave que contenga únicamente letras."
+                esquema = ""
+            else:
+                resultado, esquema = cifrado_vigenere(texto, clave, cifrar=True)
+
+            if hasattr(self, 'txt_esquema_vig'):
+                self.txt_esquema_vig.config(state="normal")
+                self.txt_esquema_vig.delete("1.0", "end")
+                self.txt_esquema_vig.insert("1.0", esquema)
+                self.txt_esquema_vig.config(state="disabled")
+
+        # 7. TRANSPOSICIÓN
+        elif self.clave_cifrado == "transposicion":
             subtipo = self.combo_subtipo.get()
             esquema = ""
-            
             if subtipo == "Por Grupos":
                 try:
                     clave = [int(x.strip()) for x in self.ent_clave_transp.get().split(",")]
                     resultado, esquema = cifrar_grupos(texto, clave)
                 except Exception as e:
                     resultado = f"[ERROR EN CLAVE DE GRUPOS]: {e}"
-                    
             elif subtipo == "Serial":
                 resultado, esquema = cifrar_serial(texto)
-                
             elif subtipo == "Por Columnas (Vertical)":
                 clave = self.ent_clave_transp.get().strip()
                 if clave:
@@ -453,12 +515,15 @@ class CipherWindow(ttk.Toplevel):
                 else:
                     resultado = "[ERROR]: Ingrese una palabra clave válida."
 
-            # Actualizar visor visual con la guía interactiva
-            if esquema:
+            if esquema and hasattr(self, 'txt_esquema_transp'):
                 self.txt_esquema_transp.config(state="normal")
                 self.txt_esquema_transp.delete("1.0", END)
                 self.txt_esquema_transp.insert("1.0", esquema)
                 self.txt_esquema_transp.config(state="disabled")
+
+        # RESPALDO GENÉRICO
+        else:
+            resultado = f"[SISTEMA]: Algoritmo '{self.clave_cifrado}' no implementado aún."
 
         self._actualizar_salida(resultado)
 
@@ -502,10 +567,22 @@ class CipherWindow(ttk.Toplevel):
                     resultado = descifrar_columnas(texto, clave)
                 else:
                     resultado = "[ERROR]: Ingrese una palabra clave válida."
+        elif self.clave_cifrado == "vigenere":
+            clave = self.ent_vigenere_key.get().strip()
+            if not clave or not clave.isalpha():
+                resultado = "[ERROR]: Ingrese una palabra clave que contenga únicamente letras."
+                esquema = ""
+            else:
+                resultado, esquema = cifrado_vigenere(texto, clave, cifrar=False)
+
+            if hasattr(self, 'txt_esquema_vig'):
+                self.txt_esquema_vig.config(state="normal")
+                self.txt_esquema_vig.delete("1.0", "end")
+                self.txt_esquema_vig.insert("1.0", esquema)
+                self.txt_esquema_vig.config(state="disabled")
         else:
             # ...
             pass
-
         self._actualizar_salida(resultado)
 
     def _actualizar_salida(self, mensaje):

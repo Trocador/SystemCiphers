@@ -22,6 +22,7 @@ class MainWindow(ttk.Window):
             ("Cifrado Polybius", "Sustitución por coordenadas mediante matriz 5x5.", "polybius"),
             ("Cifrado RailFence", "Transposición en zigzag a través de raíles.", "railfence"),
             ("Transposición", "Reordenamiento posicional (Grupos, Serial y Columnas).", "transposicion"),
+            ("Cifrado Vigenère", "Cifrado polialfabético basado en una palabra clave.", "vigenere"),
         ]
 
         self._crear_navbar()
