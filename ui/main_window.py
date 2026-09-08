@@ -18,12 +18,12 @@ class MainWindow(ttk.Window):
             ("Método Fracmasón", "Cifrado gráfico por sustitución de símbolos.", "fracmason"),
             ("César Normal", "Desplazamiento clásico de posiciones en el alfabeto.", "cesar_normal"),
             ("César por Posición", "Desplazamiento ejecutable con valor 'n' personalizable.", "cesar_posicion"),
+            ("Cifrado Adición", "Desplazamiento numérico con aritmética modular.", "adicion"),
             ("Cifrado Vigenère", "Cifrado polialfabético basado en una palabra clave.", "vigenere"),
             ("Transposición", "Reordenamiento posicional del texto original.", "transposicion"),
             ("Cifrado Polybius", "Sustitución por coordenadas mediante matriz 5x5.", "polybius"),
             ("Cifrado RailFence", "Transposición en zigzag a través de raíles.", "railfence"),
             ("César con Clave", "Alfabeto reordenado a partir de una clave.", "cesar_clave"),
-            ("Cifrado Adición", "Desplazamiento numérico con aritmética modular.", "adicion"),
         ]
 
         self._crear_navbar()

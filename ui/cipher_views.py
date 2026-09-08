@@ -138,6 +138,55 @@ class CipherWindow(ttk.Toplevel):
             # Dibujar mapeo inicial
             self._actualizar_vista_alfabeto()
 
+        # CASO: CIFRADO POR ADICIÓN
+        elif self.clave_cifrado == "adicion":
+            frame_adicion = ttk.Frame(self.frame_config)
+            frame_adicion.pack(anchor="w", fill=X)
+
+            lbl_key = ttk.Label(
+                frame_adicion, text="Clave numérica (K):", font=("Helvetica", 10)
+            )
+            lbl_key.pack(side=LEFT, padx=(0, 10))
+
+            self.spin_key = ttk.Spinbox(
+                frame_adicion,
+                from_=0,
+                to=100,
+                width=8,
+                command=self._actualizar_formula_adicion,
+            )
+            self.spin_key.set(5)
+            self.spin_key.pack(side=LEFT)
+            self.spin_key.bind("<KeyRelease>", lambda e: self._actualizar_formula_adicion())
+
+            # VISOR VISUAL: Representación de la Fórmula Modular
+            frame_preview = ttk.Frame(self.frame_config, padding=(0, 10))
+            frame_preview.pack(fill=X)
+
+            ttk.Label(
+                frame_preview,
+                text="Fórmula Aritmética Modular:",
+                font=("Helvetica", 9, "bold"),
+            ).pack(anchor="w")
+
+            self.lbl_formula = ttk.Label(
+                frame_preview, text="", font=("Consolas", 10, "bold"), bootstyle="info"
+            )
+            self.lbl_formula.pack(anchor="w", pady=(2, 0))
+
+            self._actualizar_formula_adicion()
+        
+    def _actualizar_formula_adicion(self):
+        """Muestra de forma dinámica la ecuación matemática $C = (P + K) \\pmod{26}."""
+        try:
+            k = int(self.spin_key.get())
+        except ValueError:
+            k = 0
+        
+        self.lbl_formula.config(
+            text=f"Cifrado:  C ≡ (P + {k}) mod 26    |    Descifrado:  P ≡ (C - {k}) mod 26"
+        )
+
     def _actualizar_vista_alfabeto(self):
         """Sombra visual que muestra cómo cambia el alfabeto en directo."""
         try:
@@ -162,9 +211,15 @@ class CipherWindow(ttk.Toplevel):
     def _ejecutar_cifrado(self):
         texto = self.txt_entrada.get("1.0", "end-1c")
 
-        if self.clave_cifrado in ["cesar_normal", "cesar_posicion"]:
+        if self.clave_cifrado in ["cesar", "cesar_normal", "cesar_posicion"]:
             n = self._obtener_desplazamiento()
             resultado = cifrado_cesar(texto, n)
+        elif self.clave_cifrado == "adicion":
+            try:
+                k = int(self.spin_key.get())
+            except ValueError:
+                k = 0
+            resultado = cifrado_adicion(texto, k)
         else:
             resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
@@ -173,9 +228,15 @@ class CipherWindow(ttk.Toplevel):
     def _ejecutar_descifrado(self):
         texto = self.txt_entrada.get("1.0", "end-1c")
 
-        if self.clave_cifrado in ["cesar_normal", "cesar_posicion"]:
+        if self.clave_cifrado in ["cesar", "cesar_normal", "cesar_posicion"]:
             n = self._obtener_desplazamiento()
             resultado = descifrado_cesar(texto, n)
+        elif self.clave_cifrado == "adicion":
+            try:
+                k = int(self.spin_key.get())
+            except ValueError:
+                k = 0
+            resultado = descifrado_adicion(texto, k)
         else:
             resultado = f"[DESCIFRANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
