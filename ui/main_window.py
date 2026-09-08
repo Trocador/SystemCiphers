@@ -1,5 +1,6 @@
 import ttkbootstrap as ttk
-from ttkbootstrap.constants import BOTH, LEFT, X, BOTTOM, RIGHT
+from ttkbootstrap.constants import BOTH, LEFT, X, BOTTOM, RIGHT, Y, VERTICAL
+from ttkbootstrap import ScrolledFrame
 from config import *
 from ui.cipher_views import CipherWindow
 from ui.custom_widgets import ShadowCard
@@ -9,7 +10,7 @@ class MainWindow(ttk.Window):
         super().__init__(
             title="Sistema de Cifrados",
             themename="flatly",
-            size=(1080, 900)
+            size=(1080, 750)  # Tamaño inicial cómodo
         )
         self.configure(bg=COLOR_BG_PRINCIPAL)
         
@@ -56,7 +57,7 @@ class MainWindow(ttk.Window):
 
         lbl_subtitulo = ttk.Label(
             header, 
-            text="Selecciona un método de cifrado para comenzar", 
+            text="Selecciona un método de cifrado para comenzar, y desliza para ver todos los cifrados disponibles.", 
             font=("Helvetica", 10), 
             bootstyle="secondary", 
             anchor="center"
@@ -64,9 +65,17 @@ class MainWindow(ttk.Window):
         lbl_subtitulo.pack(pady=(4, 0))
 
     def _crear_grid_tarjetas(self):
-        # Frame contenedor con scroll o padding estático
-        container = ttk.Frame(self, padding=(30, 10))
-        container.pack(fill=BOTH, expand=True)
+        # Frame desplazable con scrollbar integrada de ttkbootstrap
+        self.scroll_container = ScrolledFrame(
+            self,
+            padding=30,
+            autohide=False,
+            bootstyle="round"
+        )
+        self.scroll_container.pack(fill=BOTH, expand=True)
+
+        # El contenedor interno donde van las tarjetas
+        container = self.scroll_container
 
         container.columnconfigure(0, weight=1)
         container.columnconfigure(1, weight=1)
@@ -75,6 +84,14 @@ class MainWindow(ttk.Window):
             fila = index // 2
             columna = index % 2
             self._crear_tarjeta(container, nombre, desc, clave, fila, columna)
+
+        # Vincular eventos del ratón para desplazamiento cómodo
+        self.bind_all("<MouseWheel>", self._al_desplazar_rueda)
+
+    def _al_desplazar_rueda(self, event):
+        """Permite hacer scroll con la rueda del ratón en Windows/Linux/macOS."""
+        if hasattr(self, 'scroll_container'):
+            self.scroll_container.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def _crear_tarjeta(self, parent, titulo, descripcion, clave, fila, columna):
         # Instanciamos la tarjeta con sombra
@@ -106,7 +123,7 @@ class MainWindow(ttk.Window):
             text=descripcion,
             font=("Helvetica", 9),
             bootstyle="secondary",
-            justify="center",  # Centra el texto multilínea
+            justify="center",
             anchor="center",
             wraplength=360,
         )
@@ -119,7 +136,6 @@ class MainWindow(ttk.Window):
             bootstyle="primary",
             command=lambda c=clave, t=titulo: self._abrir_cifrado(c, t),
         )
-        # anchor="center" o pack sin fill centra el botón en el contenedor
         btn.pack(anchor="center")
 
     def _crear_footer(self):
@@ -138,8 +154,5 @@ class MainWindow(ttk.Window):
         lbl_version.pack(side=RIGHT)
 
     def _abrir_cifrado(self, clave_cifrado, titulo):
-    # Instancia la ventana secundaria pasando self como parent
         ventana_cifrado = CipherWindow(self, clave_cifrado, titulo)
-    
-    # Opcional: enfocar la nueva ventana al abrir
         ventana_cifrado.focus()
