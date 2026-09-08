@@ -19,8 +19,8 @@ class MainWindow(ttk.Window):
             ("César por Posición", "Desplazamiento ejecutable con valor 'n' personalizable.", "cesar_posicion"),
             ("Cifrado Adición", "Desplazamiento numérico con aritmética modular.", "adicion"),
             ("Método Fracmasón", "Cifrado gráfico por sustitución de símbolos.", "fracmason"),
-            ("Transposición", "Reordenamiento posicional del texto original.", "transposicion"),
             ("Cifrado Polybius", "Sustitución por coordenadas mediante matriz 5x5.", "polybius"),
+            ("Transposición", "Reordenamiento posicional del texto original.", "transposicion"),
             ("Cifrado RailFence", "Transposición en zigzag a través de raíles.", "railfence"),
             ("César con Clave", "Alfabeto reordenado a partir de una clave.", "cesar_clave"),
         ]

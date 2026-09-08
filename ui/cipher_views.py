@@ -3,6 +3,7 @@ from ttkbootstrap.constants import BOTH, END, LEFT, X
 from cifrados.cesar import cifrado_cesar, descifrado_cesar
 from cifrados.adicion import cifrado_adicion, descifrado_adicion
 from cifrados.fracmason import cifrado_fracmason, descifrado_fracmason
+from cifrados.polybius import cifrado_polybius, descifrado_polybius
 
 
 class CipherWindow(ttk.Toplevel):
@@ -176,10 +177,9 @@ class CipherWindow(ttk.Toplevel):
             self.lbl_formula.pack(anchor="w", pady=(2, 0))
 
             self._actualizar_formula_adicion()
-        
+
         # CASO: CIFRADO FRACMASÓN
         elif self.clave_cifrado == "fracmason":
-
             frame_info = ttk.Frame(self.frame_config, padding=5)
             frame_info.pack(fill=X)
 
@@ -208,6 +208,41 @@ class CipherWindow(ttk.Toplevel):
                 bootstyle="info"
             )
             lbl_grid.pack(anchor="w", pady=(2, 0))
+
+        # CASO: CIFRADO POLYBIUS
+        elif self.clave_cifrado == "polybius":
+            frame_preview = ttk.Frame(self.frame_config, padding=(0, 5))
+            frame_preview.pack(fill=X)
+
+            ttk.Label(
+                frame_preview,
+                text="Matriz de Coordenadas 5x5 (I/J combinadas):",
+                font=("Helvetica", 9, "bold"),
+            ).pack(anchor="w", pady=(0, 5))
+
+            # Visualización interactiva de la Matriz 5x5
+            frame_grid = ttk.Frame(frame_preview)
+            frame_grid.pack(anchor="w")
+
+            # Encabezados de columnas (1..5)
+            ttk.Label(frame_grid, text=" ", font=("Consolas", 8, "bold")).grid(row=0, column=0, padx=4)
+            for c in range(1, 6):
+                ttk.Label(frame_grid, text=str(c), font=("Consolas", 8, "bold"), bootstyle="primary").grid(row=0, column=c, padx=4)
+
+            # Matriz con filas (1..5)
+            filas_datos = [
+                ['A', 'B', 'C', 'D', 'E'],
+                ['F', 'G', 'H', 'I/J', 'K'],
+                ['L', 'M', 'N', 'O', 'P'],
+                ['Q', 'R', 'S', 'T', 'U'],
+                ['V', 'W', 'X', 'Y', 'Z']
+            ]
+
+            for r, fila in enumerate(filas_datos, start=1):
+                ttk.Label(frame_grid, text=str(r), font=("Consolas", 8, "bold"), bootstyle="primary").grid(row=r, column=0, padx=4)
+                for c, char in enumerate(fila, start=1):
+                    ttk.Label(frame_grid, text=char, font=("Consolas", 8), bootstyle="secondary").grid(row=r, column=c, padx=4)
+
     def _actualizar_formula_adicion(self):
         """Muestra de forma dinámica la ecuación matemática $C = (P + K) \\pmod{26}."""
         try:
@@ -254,6 +289,8 @@ class CipherWindow(ttk.Toplevel):
             resultado = cifrado_adicion(texto, k)
         elif self.clave_cifrado == "fracmason":
             resultado = cifrado_fracmason(texto)
+        elif self.clave_cifrado == "polybius":
+            resultado = cifrado_polybius(texto)
         else:
             resultado = f"[PROCESANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
@@ -273,6 +310,8 @@ class CipherWindow(ttk.Toplevel):
             resultado = descifrado_adicion(texto, k)
         elif self.clave_cifrado == "fracmason":
             resultado = descifrado_fracmason(texto)
+        elif self.clave_cifrado == "polybius":
+            resultado = descifrado_polybius(texto)
         else:
             resultado = f"[DESCIFRANDO {self.clave_cifrado.upper()}] Texto: '{texto}'"
 
